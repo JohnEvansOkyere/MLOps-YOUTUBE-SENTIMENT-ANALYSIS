@@ -92,4 +92,9 @@ But before model evaluation, download and install aws cli
 run aws configure in the project directory on terminal
 fill the requirements
 
+after model evaluation, evaluations are saved inside the s3 bucket 
+then the model registry use the run id generated to save the model to models in mlflow
 run dvc repro to run the pipelines
+
+I then built fastAPI to handle the backend, load model from the mlflow model registry
+donwload postman and send a request to try it
