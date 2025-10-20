@@ -86,4 +86,10 @@ dvc dag
 
 Before the pipelines
 create the setup.py, yaml files
-Start with Data ingestion
+Start with Data ingestion - preprocessing - modeling - evaluation
+
+But before model evaluation, download and install aws cli
+run aws configure in the project directory on terminal
+fill the requirements
+
+run dvc repro to run the pipelines
