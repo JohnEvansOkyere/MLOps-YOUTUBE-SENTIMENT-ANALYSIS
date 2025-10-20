@@ -74,4 +74,16 @@ export MLFLOW_TRACKING_URI=http://ec2-54-147-36-34.compute-1.amazonaws.com:5000/
 ```
 
 
+## DVC
 
+dvc init
+
+dvc repro
+
+dvc dag
+
+
+
+Before the pipelines
+create the setup.py, yaml files
+Start with Data ingestion
