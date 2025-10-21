@@ -152,19 +152,26 @@ AWS CICD Deployment with Github Actions
     
     docker --version, check if it is working
 
-Open GitHub
+Open GitHub Project - Settings -Actions - Runner -New Self Host - Linux
 
+    Copy and paste the commands in your EC2 virtual machine for configuration
+
+    Enter name of runner - self-hosted
 ## 6. Configure EC2 as self-hosted runner:
     setting>actions>runner>new self hosted runner> choose os> then run command one by one
 
+    Now let's add some security credentials
+    On Github - click Secrets and variables - AActions - repo-secrets
+
 ## 7. Setup github secrets
+    from the EC2 secrets we downloaded in CSV
 
-    AWS_ACESS_KEY_ID = 
+    AWS_ACCESS_KEY_ID = 
 
-    AWS_SERCRET_ACESS_KEY = 
+    AWS_SERCRET_ACCESS_KEY = 
 
     AWS_REGION = eu-north-1
 
     AWS_ECR_LOGIN_URI = demo >> 699664936905.dkr.ecr.eu-north-1.amazonaws.com/mlproject
 
-    ECR_REPOSITORY_NAME = simple-app
+    ECR_REPOSITORY_NAME = mlproject
