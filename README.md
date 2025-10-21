@@ -168,7 +168,7 @@ Open GitHub Project - Settings -Actions - Runner -New Self Host - Linux
 
     AWS_ACCESS_KEY_ID = 
 
-    AWS_SERCRET_ACCESS_KEY = 
+    AWS_SECRET_ACCESS_KEY = 
 
     AWS_REGION = eu-north-1
 
