@@ -27,6 +27,11 @@ from mlflow.tracking import MlflowClient
 import matplotlib.dates as mdates
 import pickle
 import logging
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -185,35 +190,35 @@ def load_model(model_path: str, vectorizer_path: str) -> tuple:
 
 
 # Commented out MLflow model loading function for reference
-def load_model_and_vectorizer(model_name: str, model_version: str, vectorizer_path: str) -> tuple:
-    """
-    Load model from MLflow model registry and vectorizer from local storage.
-    
-    Args:
-        model_name (str): Name of the model in MLflow registry
-        model_version (str): Version of the model to load
-        vectorizer_path (str): Path to the pickled vectorizer file
-        
-    Returns:
-        tuple: (model, vectorizer) - Loaded model and vectorizer objects
-    """
-    # Set MLflow tracking URI to your server
-    mlflow.set_tracking_uri("http://ec2-13-60-26-199.eu-north-1.compute.amazonaws.com:5000/")
-    client = MlflowClient()
-    model_uri = f"models:/{model_name}/{model_version}"
-    model = mlflow.pyfunc.load_model(model_uri)
-    with open(vectorizer_path, 'rb') as file:
-        vectorizer = pickle.load(file)
-    return model, vectorizer
+# def load_model_and_vectorizer(model_name: str, model_version: str, vectorizer_path: str) -> tuple:
+#     """
+#     Load model from MLflow model registry and vectorizer from local storage.
+#     
+#     Args:
+#         model_name (str): Name of the model in MLflow registry
+#         model_version (str): Version of the model to load
+#         vectorizer_path (str): Path to the pickled vectorizer file
+#         
+#     Returns:
+#         tuple: (model, vectorizer) - Loaded model and vectorizer objects
+#     """
+#     # Set MLflow tracking URI to your server
+#     mlflow.set_tracking_uri("http://ec2-54-167-108-249.compute-1.amazonaws.com:5000/")
+#     client = MlflowClient()
+#     model_uri = f"models:/{model_name}/{model_version}"
+#     model = mlflow.pyfunc.load_model(model_uri)
+#     with open(vectorizer_path, 'rb') as file:
+#         vectorizer = pickle.load(file)
+#     return model, vectorizer
 
 
 # ========== Initialize Model and Vectorizer ==========
 
 # Load model and vectorizer at startup
-#model, vectorizer = load_model("./lgbm_model.pkl", "./tfidf_vectorizer.pkl")
+model, vectorizer = load_model("./lgbm_model.pkl", "./tfidf_vectorizer.pkl")
 
 # Alternative: Load from MLflow model registry (uncomment if needed)
-model, vectorizer = load_model_and_vectorizer("yt_chrome_plugin_model", "1", "./tfidf_vectorizer.pkl")
+# model, vectorizer = load_model_and_vectorizer("my_model", "1", "./tfidf_vectorizer.pkl")
 
 
 # ========== API Endpoints ==========
@@ -227,6 +232,37 @@ async def home():
         dict: Welcome message
     """
     return {"message": "Welcome to our FastAPI sentiment analysis API"}
+
+
+@app.get("/get_youtube_api_key", tags=["Configuration"])
+async def get_youtube_api_key():
+    """
+    Get YouTube Data API key for Chrome extension.
+    
+    This endpoint serves the YouTube API key to the Chrome extension.
+    The key is stored securely in environment variables and never committed to Git.
+    
+    Returns:
+        dict: YouTube API key
+        
+    Raises:
+        HTTPException: If API key is not configured
+        
+    Security Note:
+        - This endpoint should be protected with authentication in production
+        - Consider implementing rate limiting
+        - Use CORS to restrict access to your extension only
+    """
+    youtube_api_key = os.getenv("YOUTUBE_API_KEY")
+    
+    if not youtube_api_key:
+        logger.error("YouTube API key not found in environment variables")
+        raise HTTPException(
+            status_code=500,
+            detail="YouTube API key not configured. Please set YOUTUBE_API_KEY in .env file"
+        )
+    
+    return {"api_key": youtube_api_key}
 
 
 @app.post(

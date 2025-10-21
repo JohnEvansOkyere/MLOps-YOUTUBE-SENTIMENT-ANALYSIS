@@ -1,10 +1,40 @@
-// popup.js - FIXED VERSION
+// popup.js - SECURE VERSION (API Key fetched from backend)
 
 document.addEventListener("DOMContentLoaded", async () => {
   const outputDiv = document.getElementById("output");
-  const API_KEY = 'AIzaSyAblTQVRIcNMtz-0FL3-ClC7u3nZ45Y07M';  // Replace with your actual YouTube Data API key
+  let API_KEY = null;  // Will be fetched from backend
   // const API_URL = 'http://my-elb-2062136355.us-east-1.elb.amazonaws.com:80';   
-  const API_URL = 'http://localhost:5000';  // ✅ FIXED: Removed trailing slash
+  const API_URL = 'http://localhost:5000';  // Backend API URL
+
+  // Fetch YouTube API key from backend
+  try {
+    outputDiv.innerHTML = "<p>Initializing...</p>";
+    const keyResponse = await fetch(`${API_URL}/get_youtube_api_key`);
+    if (!keyResponse.ok) {
+      throw new Error('Failed to fetch YouTube API key from backend');
+    }
+    const keyData = await keyResponse.json();
+    API_KEY = keyData.api_key;
+    
+    if (!API_KEY) {
+      throw new Error('YouTube API key not found in backend response');
+    }
+  } catch (error) {
+    console.error("Error fetching YouTube API key:", error);
+    outputDiv.innerHTML = `
+      <div style="color: #ff6b6b; padding: 10px;">
+        <p><strong>Configuration Error</strong></p>
+        <p>Unable to fetch YouTube API key from backend.</p>
+        <p>Please ensure:</p>
+        <ul style="text-align: left; margin-left: 20px;">
+          <li>Backend server is running</li>
+          <li>YOUTUBE_API_KEY is set in .env file</li>
+          <li>API_URL is correct</li>
+        </ul>
+      </div>
+    `;
+    return; // Stop execution if API key can't be fetched
+  }
 
   // Get the current tab's URL
   chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
@@ -129,6 +159,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       while (comments.length < 500) {
         const response = await fetch(`https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=100&pageToken=${pageToken}&key=${API_KEY}`);
         const data = await response.json();
+        
+        // Check for API errors
+        if (data.error) {
+          console.error("YouTube API error:", data.error);
+          outputDiv.innerHTML += `<p style="color: #ff6b6b;">YouTube API Error: ${data.error.message}</p>`;
+          break;
+        }
+        
         if (data.items) {
           data.items.forEach(item => {
             const commentText = item.snippet.topLevelComment.snippet.textOriginal;
