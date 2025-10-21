@@ -172,6 +172,6 @@ Open GitHub Project - Settings -Actions - Runner -New Self Host - Linux
 
     AWS_REGION = eu-north-1
 
-    AWS_ECR_LOGIN_URI = demo >> 699664936905.dkr.ecr.eu-north-1.amazonaws.com/mlproject
+    AWS_ECR_LOGIN_URI = demo >> 699664936905.dkr.ecr.eu-north-1.amazonaws.com/mlflow-ecr
 
-    ECR_REPOSITORY_NAME = mlproject
+    ECR_REPOSITORY_NAME =mlflow-ecr
