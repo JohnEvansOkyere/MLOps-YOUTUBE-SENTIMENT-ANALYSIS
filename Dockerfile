@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 5000
 
 # Command to run the application
-CMD ["uvicorn", "fastAPI_app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "fastAPI_app.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
