@@ -28,6 +28,7 @@ import matplotlib.dates as mdates
 import pickle
 import logging
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -36,6 +37,10 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Get base directory (parent of current file's directory)
+# If this file is in /app/fastAPI_app/main.py, BASE_DIR will be /app
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -164,7 +169,7 @@ def load_model(model_path: str, vectorizer_path: str) -> tuple:
     Load the trained model and vectorizer from pickle files.
     
     Args:
-        model_path (str): Path to the pickled model file
+        model_path (str): Path to the pickled model file (e.g., "./lgbm_model.pkl")
         vectorizer_path (str): Path to the pickled TF-IDF vectorizer file
         
     Returns:
@@ -175,15 +180,20 @@ def load_model(model_path: str, vectorizer_path: str) -> tuple:
     """
     try:
         # Load the trained LGBM model from pickle file
+        logger.info(f"Loading model from: {model_path}")
         with open(model_path, 'rb') as file:
             model = pickle.load(file)
         
         # Load the TF-IDF vectorizer from pickle file
+        logger.info(f"Loading vectorizer from: {vectorizer_path}")
         with open(vectorizer_path, 'rb') as file:
             vectorizer = pickle.load(file)
       
         logger.info("Model and vectorizer loaded successfully")
         return model, vectorizer
+    except FileNotFoundError as e:
+        logger.error(f"Model file not found: {e}")
+        raise
     except Exception as e:
         logger.error(f"Error loading model or vectorizer: {e}")
         raise
@@ -214,8 +224,22 @@ def load_model(model_path: str, vectorizer_path: str) -> tuple:
 
 # ========== Initialize Model and Vectorizer ==========
 
+# Build absolute paths to model files using BASE_DIR
+# Use environment variables if set, otherwise use default paths
+model_path = os.getenv("MODEL_PATH", str(BASE_DIR / "lgbm_model.pkl"))
+vectorizer_path = os.getenv("VECTORIZER_PATH", str(BASE_DIR / "tfidf_vectorizer.pkl"))
+
+logger.info(f"Base directory: {BASE_DIR}")
+logger.info(f"Model path: {model_path}")
+logger.info(f"Vectorizer path: {vectorizer_path}")
+
 # Load model and vectorizer at startup
-model, vectorizer = load_model("./lgbm_model.pkl", "./tfidf_vectorizer.pkl")
+try:
+    model, vectorizer = load_model(model_path, vectorizer_path)
+except Exception as e:
+    logger.error(f"Failed to load model at startup: {e}")
+    logger.error("Application will start but predictions will fail!")
+    model, vectorizer = None, None
 
 # Alternative: Load from MLflow model registry (uncomment if needed)
 # model, vectorizer = load_model_and_vectorizer("my_model", "1", "./tfidf_vectorizer.pkl")
@@ -304,6 +328,14 @@ async def predict_with_timestamps(request: PredictWithTimestampsRequest):
         ]
         ```
     """
+    # Check if models are loaded
+    if model is None or vectorizer is None:
+        logger.error("Models not loaded - cannot make predictions")
+        raise HTTPException(
+            status_code=503,
+            detail="Model not loaded. Please check server logs and ensure model files exist."
+        )
+    
     # Extract comments and timestamps from request
     comments_data = request.comments
     
@@ -380,6 +412,14 @@ async def predict(request: PredictRequest):
         ]
         ```
     """
+    # Check if models are loaded
+    if model is None or vectorizer is None:
+        logger.error("Models not loaded - cannot make predictions")
+        raise HTTPException(
+            status_code=503,
+            detail="Model not loaded. Please check server logs and ensure model files exist."
+        )
+    
     # Extract comments from request
     comments = request.comments
     logger.info(f"Received {len(comments)} comments for prediction")
