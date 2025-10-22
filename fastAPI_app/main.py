@@ -721,4 +721,4 @@ if __name__ == '__main__':
     # host='0.0.0.0' makes it accessible from any network interface
     # port=5000 to match the original Flask port
     # reload=True enables auto-reload during development
-    uvicorn.run("app:app", host='0.0.0.0', port=5000, reload=True)
+    uvicorn.run("fastAPI_app.main:app", host='0.0.0.0', port=5000, reload=True)
