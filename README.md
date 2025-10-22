@@ -1,178 +1,238 @@
-# MLOps-YOUTUBE-SENTIMENT-ANALYSIS
+Sure! Here's a **ready-to-copy README** for your project:
 
-# MLflow-Basic-Demo
+````markdown
+# MLOps YouTube Sentiment Analysis
 
+This project demonstrates a full **MLOps workflow** for sentiment analysis on YouTube comments, including **data pipelines, model training, evaluation, MLflow tracking, DVC pipelines, FastAPI backend, Chrome extension, Docker deployment, and AWS CI/CD setup**.
 
-## For Dagshub:
+---
 
-MLFLOW_TRACKING_URI=https://dagshub.com/entbappy/MLflow-Basic-Demo.mlflow \
-MLFLOW_TRACKING_USERNAME=entbappy \
-MLFLOW_TRACKING_PASSWORD=6824692c47a369aa6f9eac5b10041d5c8edbcef0 \
-python script.py
+## Table of Contents
 
+1. [Project Overview](#project-overview)  
+2. [Setup & Dependencies](#setup--dependencies)  
+3. [MLflow Tracking](#mlflow-tracking)  
+   - [Dagshub](#dagshub)  
+   - [AWS MLflow Server](#aws-mlflow-server)  
+4. [DVC Pipelines](#dvc-pipelines)  
+5. [Backend & API](#backend--api)  
+6. [Chrome Extension](#chrome-extension)  
+7. [Docker Deployment](#docker-deployment)  
+8. [AWS CI/CD with GitHub Actions](#aws-cicd-with-github-actions)  
 
+---
+
+## Project Overview
+
+The project performs **YouTube comment sentiment analysis** using the following components:  
+
+- **Data Pipelines**: Data ingestion → Preprocessing → Modeling → Evaluation → Model Registry.  
+- **MLflow**: Tracks experiments, stores artifacts, and registers models.  
+- **DVC**: Version control for data and reproducible pipelines.  
+- **FastAPI**: Backend to serve predictions and charts.  
+- **Chrome Extension**: UI to analyze YouTube comments directly in the browser.  
+- **Docker & AWS**: Containerized deployment with CI/CD using GitHub Actions.  
+
+---
+
+## Setup & Dependencies
+
+1. Clone the repository:
 
 ```bash
+git clone <repo_url>
+cd MLOps-YOUTUBE-SENTIMENT-ANALYSIS
+````
 
-export MLFLOW_TRACKING_URI=https://dagshub.com/entbappy/MLflow-Basic-Demo.mlflow
+2. Install Python dependencies:
 
-export MLFLOW_TRACKING_USERNAME=entbappy 
+```bash
+pip install -r requirements.txt
+```
 
-export MLFLOW_TRACKING_PASSWORD=6824692c47a369aa6f9eac5b10041d5c8edbcef0
+3. Optional: Setup virtual environment:
 
-
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+venv\Scripts\activate     # Windows
 ```
 
 
-# MLflow on AWS
+---
 
-## MLflow on AWS Setup:
+### AWS MLflow Server
 
-1. Login to AWS console.
-2. Create IAM user with AdministratorAccess
-3. Export the credentials in your AWS CLI by running "aws configure"
-4. Create a s3 bucket
-5. Create EC2 machine (Ubuntu) & add Security groups 5000 port
+1. **Create AWS Resources**:
 
-Run the following command on EC2 machine
+   * IAM user with `AdministratorAccess`
+   * S3 bucket for artifacts
+   * EC2 instance (Ubuntu) with port 5000 open in Security Group
+
+2. **Setup EC2**:
+
 ```bash
 sudo apt update
+sudo apt install python3-pip -y
+sudo apt install pipenv -y
+sudo apt install virtualenv -y
 
-sudo apt install python3-pip
-
-sudo apt install pipenv
-
-sudo apt install virtualenv
-
-mkdir mlflow
-
-cd mlflow
-
-pipenv install mlflow
-
-pipenv install awscli
-
-pipenv install boto3
-
+mkdir mlflow && cd mlflow
+pipenv install mlflow awscli boto3
 pipenv shell
-
-
-## Then set aws credentials
-aws configure
-
-
-#Finally 
-mlflow server -h 0.0.0.0 --default-artifact-root s3://mlflow-test-23 - replac mlflow-test-23 with your s3 bucket created
-
-# Setting the Port number
-Go to ec2, click on instance, click on security, selecet secuirty groups - Edit inbound rules - add rule - add your port number
-#open Public IPv4 DNS to the port 5000
-
-
-#set uri in your local terminal and in your code 
-export MLFLOW_TRACKING_URI=http://ec2-54-147-36-34.compute-1.amazonaws.com:5000/
 ```
 
+3. **Configure AWS CLI**:
 
-## DVC
+```bash
+aws configure
+```
 
+4. **Start MLflow server**:
+
+```bash
+mlflow server \
+  --host 0.0.0.0 \
+  --default-artifact-root s3://<your-s3-bucket>
+```
+
+5. **Set MLflow tracking URI locally**:
+
+```bash
+export MLFLOW_TRACKING_URI=http://<EC2-PUBLIC-DNS>:5000
+```
+
+---
+
+## DVC Pipelines
+
+1. Initialize DVC:
+
+```bash
 dvc init
+```
 
+2. Define pipeline stages (`dvc.yaml`):
+
+* **data_ingestion** → **data_preprocessing** → **model_building** → **model_evaluation** → **model_registration**
+
+3. Run pipeline:
+
+```bash
 dvc repro
-
 dvc dag
+```
 
+> After model evaluation, metrics and artifacts are saved in the S3 bucket.
+> The model is registered in MLflow using the run ID.
 
+---
 
-Before the pipelines
-create the setup.py, yaml files
-Start with Data ingestion - preprocessing - modeling - evaluation
+## Backend & API
 
-But before model evaluation, download and install aws cli
-run aws configure in the project directory on terminal
-fill the requirements
+* Built with **FastAPI**.
 
-after model evaluation, evaluations are saved inside the s3 bucket 
-then the model registry use the run id generated to save the model to models in mlflow
-run dvc repro to run the pipelines
+* Loads model from **MLflow Model Registry**.
 
-I then built fastAPI to handle the backend, load model from the mlflow model registry
-donwload postman and send a request to try it
+* Serves endpoints for:
 
-create an chrome plugin extension, connect to your youtube API
-load the extension in your chrome extensions, open a you
+  * Predictions with timestamps
+  * Sentiment charts
+  * Word clouds
+  * Trend graphs
 
-Now, we deploy it using Docker container
+* Test with **Postman** or browser requests:
 
-lets then create a .github/workflows/cicd.yaml for CI/CD automations
+```bash
+http://localhost:5000/predict_with_timestamps
+```
 
+---
 
-AWS CICD Deployment with Github Actions
+## Chrome Extension
 
-2. Create IAM user for deployment
+* Connects to YouTube API securely via your backend.
 
-# Description About the deployment
-1. BUild docer image of the source code
+* Features:
 
-2. push your docker image to ECR
+  * Fetch top 500 comments for a video
+  * Sentiment analysis
+  * Comment summary metrics
+  * Sentiment pie chart
+  * Trend graph
+  * Word cloud visualization
+  * Top 25 comments with sentiment
 
-3. Launch your EC2
+* Load the extension in Chrome:
+  `chrome://extensions → Load unpacked → select chrome_extension folder`.
 
-4. Pull your image from ECR in EC2
+---
 
-5. Launch your deocker image in EC2
+## Docker Deployment
 
-#Policy:
+1. Build Docker image:
 
-1. AmazonEC2ContainerREgistryFullAccess
+```bash
+docker build -t youtube-sentiment:latest .
+```
 
-2. AmazonEC2FullAccess
+2. Run container:
 
-## 3. Create ECR repo to store/save docker image
+```bash
+docker run -p 8000:8000 youtube-sentiment:latest
+```
 
-    - Save the URI: 699664936905.dkr.ecr.eu-north-1.amazonaws.com/mlproject
+---
 
-## 4. Create EC2 machine (Ubuntu)
+## AWS CI/CD with GitHub Actions
 
-## 5 Open EC2 and install docker in EC2 Machine
+1. **Create IAM user** with policies:
 
-    #optional
+   * `AmazonEC2ContainerRegistryFullAccess`
+   * `AmazonEC2FullAccess`
 
-    sudo apt-get update -y
+2. **Create ECR repository**:
 
-    sudo apt-get upgrade
+```text
+URI: <account_id>.dkr.ecr.<region>.amazonaws.com/mlproject
+```
 
-    #requirement
+3. **Setup EC2**:
 
-    curl -fsSl https://get.docker.com -o get-docker.sh
+   * Install Docker:
 
-    sudo sh get-docker.sh
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker ubuntu
+```
 
-    sudo usermod -aG docker ubuntu
-    
-    docker --version, check if it is working
+4. **Configure self-hosted GitHub runner** on EC2.
 
-Open GitHub Project - Settings -Actions - Runner -New Self Host - Linux
+5. **Add GitHub secrets**:
 
-    Copy and paste the commands in your EC2 virtual machine for configuration
+| Secret Name           | Value           |
+| --------------------- | --------------- |
+| AWS_ACCESS_KEY_ID     | <from IAM>      |
+| AWS_SECRET_ACCESS_KEY | <from IAM>      |
+| AWS_REGION            | eu-north-1      |
+| AWS_ECR_LOGIN_URI     | <ECR login URI> |
+| ECR_REPOSITORY_NAME   | mlflow-ecr      |
 
-    Enter name of runner - self-hosted
-## 6. Configure EC2 as self-hosted runner:
-    setting>actions>runner>new self hosted runner> choose os> then run command one by one
+6. **CI/CD Workflow** (`.github/workflows/cicd.yaml`):
 
-    Now let's add some security credentials
-    On Github - click Secrets and variables - AActions - repo-secrets
+   * Build Docker image
+   * Push to ECR
+   * Pull & run image on EC2
 
-## 7. Setup github secrets
-    from the EC2 secrets we downloaded in CSV
+---
 
-    AWS_ACCESS_KEY_ID = 
+### Notes
 
-    AWS_SECRET_ACCESS_KEY = 
+* Make sure **AWS ports** (e.g., 5000 for MLflow, 8000 for API) are open in Security Groups.
+* Always test pipelines locally with `dvc repro` before deploying.
+* Keep your **API keys** secure in `.env` or backend service.
 
-    AWS_REGION = eu-north-1
+```
 
-    AWS_ECR_LOGIN_URI = demo >> 699664936905.dkr.ecr.eu-north-1.amazonaws.com/mlflow-ecr
-
-    ECR_REPOSITORY_NAME =mlflow-ecr 
 
