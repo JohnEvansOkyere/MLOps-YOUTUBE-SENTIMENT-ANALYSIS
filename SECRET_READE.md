@@ -62,7 +62,7 @@ aws configure
 
 
 #Finally 
-mlflow server -h 0.0.0.0 --default-artifact-root s3://mlflow-test-23 - replac mlflow-test-23 with your s3 bucket created
+mlflow server -h 0.0.0.0 --default-artifact-root s3://mlflow-bucket-06 - replac mlflow-test-23 with your s3 bucket created
 
 # Setting the Port number
 Go to ec2, click on instance, click on security, selecet secuirty groups - Edit inbound rules - add rule - add your port number

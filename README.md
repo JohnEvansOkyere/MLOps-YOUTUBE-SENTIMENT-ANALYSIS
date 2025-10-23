@@ -40,7 +40,7 @@ The project performs **YouTube comment sentiment analysis** using the following 
 1. Clone the repository:
 
 ```bash
-git clone <repo_url>
+git clone https://github.com/JohnEvansOkyere/MLOps-YOUTUBE-SENTIMENT-ANALYSIS.git
 cd MLOps-YOUTUBE-SENTIMENT-ANALYSIS
 ````
 
@@ -233,7 +233,6 @@ sudo usermod -aG docker ubuntu
 * Always test pipelines locally with `dvc repro` before deploying.
 * Keep your **API keys** secure in `.env` or backend service.
 
-```
 
 
-DEVELOPED BY JOHN EVANS OKYERE
+
