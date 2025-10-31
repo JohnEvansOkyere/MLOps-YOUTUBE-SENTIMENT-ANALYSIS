@@ -5,7 +5,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const outputDiv = document.getElementById("output");
   let API_KEY = null;
-  const API_URL = 'http://localhost:5000';
+  const API_URL = 'http://localhost:8080';
 
   // --- HELPER FUNCTIONS ---
 
