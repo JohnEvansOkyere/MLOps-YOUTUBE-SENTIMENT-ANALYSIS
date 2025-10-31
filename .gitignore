@@ -252,3 +252,5 @@ __pycache__/
 .git/
 .env
 *.egg-info/
+data/raw
+data/interim
