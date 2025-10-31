@@ -292,10 +292,33 @@ def save_metrics_report(
         logger.error(f'Error saving metrics report: {e}')
         raise
 
+
+def save_latest_artifacts(cm_path: str, metrics_path: str):
+    """Create 'latest' copies of artifacts for DVC tracking."""
+    try:
+        import shutil
+        reports_dir = Path('reports')
+        
+        # Copy confusion matrix to 'latest'
+        cm_latest = reports_dir / 'confusion_matrices' / 'confusion_matrix_test_latest.png'
+        cm_latest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(cm_path, cm_latest)
+        
+        # Copy metrics to 'latest'
+        metrics_latest = reports_dir / 'metrics' / 'metrics_test_latest.json'
+        metrics_latest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(metrics_path, metrics_latest)
+        
+        logger.info(f"✓ Latest artifacts created for DVC tracking")
+        
+    except Exception as e:
+        logger.warning(f"Could not create latest artifacts: {e}")
+
 # ==================== MONITORING INTEGRATION ====================
 def run_drift_detection(
     reference_data: pd.DataFrame,
-    current_data: pd.DataFrame
+    current_data: pd.DataFrame,
+    config_path: str = "params.yaml"  # Add this parameter
 ) -> Tuple[bool, Dict]:
     """Run Evidently drift detection."""
     try:
@@ -303,7 +326,7 @@ def run_drift_detection(
         logger.info("DRIFT DETECTION")
         logger.info(f"{'='*60}")
         
-        detector = DataDriftDetector()
+        detector = DataDriftDetector(config_path=config_path)  # Pass config path
         drift_detected, drift_summary, drift_report = detector.detect_drift(
             reference_data=reference_data,
             current_data=current_data,
@@ -316,14 +339,17 @@ def run_drift_detection(
         logger.error(f'Error during drift detection: {e}')
         raise
 
-def run_quality_check(data: pd.DataFrame) -> Tuple[bool, Dict]:
+def run_quality_check(
+    data: pd.DataFrame,
+    config_path: str = "params.yaml"  # Add this parameter
+) -> Tuple[bool, Dict]:
     """Run Evidently data quality check."""
     try:
         logger.info(f"\n{'='*60}")
         logger.info("DATA QUALITY CHECK")
         logger.info(f"{'='*60}")
         
-        checker = DataQualityChecker()
+        checker = DataQualityChecker(config_path=config_path)  # Pass config path
         quality_passed, quality_summary = checker.check_quality(
             data=data,
             save_report=True
@@ -459,9 +485,12 @@ def main():
             test_results = test_data.copy()
             test_results['prediction'] = y_pred
             
+            # Get full path to params.yaml
+            params_config_path = str(root_dir / 'params.yaml')
+
             # Run data quality check
             logger.info("\n[4/7] Running data quality check...")
-            quality_passed, quality_summary = run_quality_check(test_data)
+            quality_passed, quality_summary = run_quality_check(test_data, config_path=params_config_path)
             
             # Load reference data for drift detection
             logger.info("\n[5/7] Loading reference data for drift detection...")
@@ -474,7 +503,8 @@ def main():
                 logger.info("\n[6/7] Running drift detection...")
                 drift_detected, drift_summary = run_drift_detection(
                     reference_data=reference_data,
-                    current_data=test_data
+                    current_data=test_data,
+                    config_path=params_config_path
                 )
             else:
                 logger.warning(f"Reference data not found at {reference_data_path}")

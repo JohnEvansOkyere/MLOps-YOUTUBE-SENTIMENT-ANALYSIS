@@ -1,0 +1,62 @@
+{
+  "timestamp": "2025-10-31T02:41:55.383109",
+  "dataset": "test",
+  "environment": "production",
+  "git_commit": "manual_run",
+  "overall_metrics": {
+    "accuracy": 0.7851610273134937,
+    "precision_weighted": 0.7893336616605923,
+    "recall_weighted": 0.7851610273134937,
+    "f1_score_weighted": 0.7829239870249891,
+    "precision_macro": 0.771383098804863,
+    "recall_macro": 0.7704059240816669,
+    "f1_score_macro": 0.767000248635943,
+    "roc_auc_ovr": 0.8986469902739164,
+    "roc_auc_ovo": 0.8925955995878985,
+    "class_-1_precision": 0.6795931341385887,
+    "class_-1_recall": 0.639736684619988,
+    "class_-1_f1": 0.659062885326757,
+    "class_-1_support": 1671.0,
+    "class_0_precision": 0.7697516930022573,
+    "class_0_recall": 0.9226903749516815,
+    "class_0_f1": 0.8393108298171589,
+    "class_0_support": 2587.0,
+    "class_1_precision": 0.864804469273743,
+    "class_1_recall": 0.7487907126733312,
+    "class_1_f1": 0.8026270307639128,
+    "class_1_support": 3101.0
+  },
+  "classification_report": {
+    "-1": {
+      "precision": 0.6795931341385887,
+      "recall": 0.639736684619988,
+      "f1-score": 0.659062885326757,
+      "support": 1671.0
+    },
+    "0": {
+      "precision": 0.7697516930022573,
+      "recall": 0.9226903749516815,
+      "f1-score": 0.8393108298171589,
+      "support": 2587.0
+    },
+    "1": {
+      "precision": 0.864804469273743,
+      "recall": 0.7487907126733312,
+      "f1-score": 0.8026270307639128,
+      "support": 3101.0
+    },
+    "accuracy": 0.7851610273134937,
+    "macro avg": {
+      "precision": 0.771383098804863,
+      "recall": 0.7704059240816669,
+      "f1-score": 0.767000248635943,
+      "support": 7359.0
+    },
+    "weighted avg": {
+      "precision": 0.7893336616605923,
+      "recall": 0.7851610273134937,
+      "f1-score": 0.7829239870249891,
+      "support": 7359.0
+    }
+  }
+}
