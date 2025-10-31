@@ -1,9 +1,102 @@
-Sure! Here's a **ready-to-copy README** for your project:
-
-````markdown
 # MLOps YouTube Sentiment Analysis
 
 This project demonstrates a full **MLOps workflow** for sentiment analysis on YouTube comments, including **data pipelines, model training, evaluation, MLflow tracking, DVC pipelines, FastAPI backend, Chrome extension, Docker deployment, and AWS CI/CD setup**.
+
+---
+
+## Project Structure
+
+```
+MLOps-YOUTUBE-SENTIMENT-ANALYSIS/
+├── data/                          # Data directory
+│   ├── raw/                       # Raw data files
+│   │   ├── test.csv
+│   │   └── train.csv
+│   └── interim/                   # Processed data files
+│       ├── test_processed.csv
+│       └── train_processed.csv
+│
+├── src/                           # Source code
+│   ├── __init__.py
+│   ├── data/                      # Data processing modules
+│   │   ├── data_ingestion.py
+│   │   └── data_preprocessing.py
+│   ├── model/                     # Model-related modules
+│   │   ├── model_building.py
+│   │   ├── model_evaluation.py
+│   │   └── register_model.py
+│   └── monitoring/                # Model monitoring modules
+│       ├── __init__
+│       ├── config/                 # Monitoring configuration
+│       │   └── monitoring_config.yaml
+│       ├── data_drift_detector.py
+│       ├── model_monitor.py
+│       └── report_generator.py
+│
+├── fastAPI_app/                   # FastAPI backend application
+│   ├── __pycache__/
+│   ├── main.py                    # Main FastAPI application
+│   └── test.py                    # API tests
+│
+├── notebooks/                     # Jupyter notebooks for experimentation
+│   ├── 1_Preprocessing_&_EDA.ipynb
+│   ├── 2_experiment_1_baseline_model.ipynb
+│   ├── 3_experiment_2_bow_.ipynb
+│   ├── 4_experiment_3_Trigrams_(1,2)_max_features.ipynb
+│   ├── 5_experiment_4_handling_imbalanced_data.ipynb
+│   ├── 6_experiment_5_xgboost_with_hpt.ipynb
+│   ├── 7_experiment_6_lightgbm_detailed_hpt.ipynb
+│   ├── 8_stacking.ipynb
+│   ├── confusion_matrix_adasyn.png
+│   ├── confusion_matrix_class_weights.png
+│   ├── confusion_matrix_oversampling.png
+│   ├── confusion_matrix_smote_enn.png
+│   ├── confusion_matrix_undersampling.png
+│   ├── confusion_matrix.png
+│   ├── dataset.csv
+│   └── reddit_preprocessing.csv
+│
+├── yt-chrome-plugin-frontend/     # Chrome extension frontend
+│   ├── manifest.json              # Extension manifest
+│   ├── popup.html                  # Extension popup HTML
+│   └── popup.js                    # Extension popup JavaScript
+│
+├── youtube.egg-info/              # Python package metadata
+│   ├── dependency_links.txt
+│   ├── PKG-INFO
+│   ├── SOURCES.txt
+│   └── top_level.txt
+│
+├── Dockerfile                     # Docker container configuration
+├── dvc.lock                       # DVC lock file for pipeline dependencies
+├── dvc.yaml                       # DVC pipeline configuration
+├── params.yaml                    # Model and pipeline parameters
+├── requirements.txt               # Python dependencies
+├── setup.py                       # Python package setup file
+├── LICENSE                        # Project license
+├── SECRET_READE.md               # Secrets/credentials documentation
+├── README.md                      # This file
+│
+├── lgbm_model.pkl                # Saved LightGBM model file
+├── tfidf_vectorizer.pkl          # Saved TF-IDF vectorizer
+├── confusion_matrix.png          # Confusion matrix visualization
+├── confusion_matrix_Test Data.png # Test data confusion matrix
+├── experiment_info.json          # Experiment metadata
+├── errors.log                    # General error log
+├── preprocessing_errors.log      # Preprocessing error log
+├── model_building_errors.log     # Model building error log
+├── model_evaluation_errors.log   # Model evaluation error log
+└── model_registration_errors.log # Model registration error log
+```
+
+### Directory Descriptions
+
+- **`data/`**: Contains raw and processed datasets used for training and testing
+- **`src/`**: Main source code organized into data processing, model building, and monitoring modules
+- **`fastAPI_app/`**: FastAPI backend application serving predictions and visualizations
+- **`notebooks/`**: Jupyter notebooks documenting the experimentation and development process
+- **`yt-chrome-plugin-frontend/`**: Chrome extension frontend for browser-based sentiment analysis
+- **Root files**: Configuration files, dependencies, Docker setup, and saved model artifacts
 
 ---
 

@@ -1,0 +1,52 @@
+# monitoring/config/monitoring_config.yaml
+
+monitoring:
+  # Data Drift Thresholds
+  data_drift:
+    enabled: true
+    threshold: 0.5  # Drift score threshold (0-1)
+    stattest: "wasserstein"  # or "ks", "psi", "chi-squared"
+    cat_stattest: "chi-squared"
+    
+  # Model Performance Monitoring
+  performance:
+    enabled: true
+    accuracy_threshold: 0.75
+    f1_threshold: 0.70
+    degradation_threshold: 0.05  # 5% drop triggers alert
+    
+  # Data Quality Checks
+  data_quality:
+    enabled: true
+    missing_values_threshold: 0.05  # 5% max missing
+    duplicates_threshold: 0.01
+    min_text_length: 3
+    max_text_length: 5000
+    
+  # Reporting
+  reports:
+    format: ["html", "json"]  # Output formats
+    save_to_mlflow: true
+    generate_dashboard: true
+    
+  # Alerts
+  alerts:
+    enabled: false  # Enable when you set up notifications
+    slack_webhook: ""
+    email: ""
+
+# Feature columns to monitor
+features:
+  text_features:
+    - "clean_comment"
+  target:
+    - "category"
+  
+  # TF-IDF features (top N to monitor)
+  tfidf_features_to_monitor: 50
+
+# Reference data settings
+reference_data:
+  path: "reference_data/train_reference.csv"
+  sample_size: 5000  # Use subset for faster comparison
+  update_frequency: "monthly"  # How often to update reference
