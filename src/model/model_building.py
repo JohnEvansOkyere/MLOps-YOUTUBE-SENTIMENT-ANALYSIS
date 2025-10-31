@@ -477,7 +477,7 @@ def train_with_mlflow(root_dir: Path, params: Dict):
             
             # Save experiment info for registration
             experiment_info = save_experiment_info(
-                run_id, model_path, metrics, model_params, root_dir
+                run_id, "model", metrics, model_params, root_dir
             )
             
             # Set tags
