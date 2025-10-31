@@ -46,8 +46,8 @@ stages:
       size: 9574060
     - path: src/model/model_building.py
       hash: md5
-      md5: 77f81c7907d4fc30937991b1ad704e62
-      size: 20524
+      md5: 39f906e4c5df48218194d8159b919fe6
+      size: 20521
     params:
       params.yaml:
         model_building.learning_rate: 0.09
@@ -60,12 +60,12 @@ stages:
     outs:
     - path: experiment_info.json
       hash: md5
-      md5: 3b8c915521b71dd9f22aa8725fdee8c1
+      md5: 9480d3e1a782d2a9d9f7dcdaf3380189
       size: 950
     - path: lgbm_model.pkl
       hash: md5
-      md5: 0f31a4f3ee10e7fb36c5b39fdbcf724d
-      size: 3877703
+      md5: f3cdb41af0709246b29ff675bcba1c32
+      size: 3877706
     - path: tfidf_vectorizer.pkl
       hash: md5
       md5: 64e378fb0e0b24464bd0d201f1f7542f
@@ -79,16 +79,16 @@ stages:
       size: 2316140
     - path: lgbm_model.pkl
       hash: md5
-      md5: 0f31a4f3ee10e7fb36c5b39fdbcf724d
-      size: 3877703
+      md5: f3cdb41af0709246b29ff675bcba1c32
+      size: 3877706
     - path: reference_data/train_reference.csv
       hash: md5
       md5: e941f1910d1b790402e0ac5c5b492d7a
       size: 1611805
     - path: src/model/model_evaluation.py
       hash: md5
-      md5: 3dcfcf47ad23530870d86912145c25c8
-      size: 21967
+      md5: d04ce72466be977085d89d2c39f018a8
+      size: 21994
     - path: tfidf_vectorizer.pkl
       hash: md5
       md5: 64e378fb0e0b24464bd0d201f1f7542f
@@ -100,17 +100,17 @@ stages:
       size: 41630
     - path: reports/data_quality
       hash: md5
-      md5: a9433cc9ebc2e4d8946596b8bfa6217f.dir
+      md5: 10328e0f10b12822bc924427b3d77de4.dir
       size: 2921179
       nfiles: 2
     - path: reports/drift
       hash: md5
-      md5: 1c67f54a7c71c6c6eee2997487908835.dir
+      md5: 6db48217df3ddfe2228af98aa81f8935.dir
       size: 3309094
       nfiles: 2
     - path: reports/metrics/metrics_test_latest.json
       hash: md5
-      md5: 036a5e66afe19d33de98211e4eec4fb0
+      md5: 13a73eaad0c23f7c54a7fa8e41c6a054
       size: 1861
   model_registration:
     cmd: python src/model/register_model.py
