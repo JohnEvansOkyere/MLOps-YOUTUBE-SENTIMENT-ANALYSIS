@@ -1,0 +1,19 @@
+{
+  "drift": {
+    "drift_detected": false,
+    "n_drifted_features": 0,
+    "drift_score": 0.0,
+    "timestamp": "2025-10-31T03:03:00.813808",
+    "reference_size": 5000,
+    "current_size": 7359
+  },
+  "quality": {
+    "quality_passed": false,
+    "n_tests": 3,
+    "n_passed": 1,
+    "n_failed": 2,
+    "timestamp": "2025-10-31T03:03:00.428165",
+    "data_size": 7359
+  },
+  "performance": null
+}
