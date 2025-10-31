@@ -3,7 +3,7 @@
     "drift_detected": false,
     "n_drifted_features": 0,
     "drift_score": 0.0,
-    "timestamp": "2025-10-31T03:13:35.608625",
+    "timestamp": "2025-10-31T03:49:10.674143",
     "reference_size": 5000,
     "current_size": 7333
   },
@@ -12,7 +12,7 @@
     "n_tests": 3,
     "n_passed": 3,
     "n_failed": 0,
-    "timestamp": "2025-10-31T03:13:35.216008",
+    "timestamp": "2025-10-31T03:49:10.278047",
     "data_size": 7333
   },
   "performance": null

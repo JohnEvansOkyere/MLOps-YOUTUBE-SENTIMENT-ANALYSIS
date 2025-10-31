@@ -1,0 +1,70 @@
+# .dockerignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+ENV/
+youtube/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data files (these should come from S3/MLflow)
+data/raw/
+data/interim/
+*.csv
+
+# Model files (load from MLflow, not Docker image)
+# Uncomment if you want to exclude:
+# lgbm_model.pkl
+# tfidf_vectorizer.pkl
+
+# Logs
+logs/
+*.log
+
+# Git
+.git/
+.gitignore
+
+# DVC
+.dvc/
+*.dvc
+
+# Reports
+reports/
+
+# Documentation
+*.md
+docs/
+
+# Tests
+tests/
+notebooks/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.bak
+*.tmp
+reference_data/

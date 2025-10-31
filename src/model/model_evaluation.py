@@ -362,46 +362,43 @@ def run_quality_check(
         raise
 
 # ==================== MLFLOW INTEGRATION ====================
-def save_experiment_info(
+def save_evaluation_info(
     run_id: str,
-    model_path: str,
     metrics: Dict,
-    params: Dict,
     drift_summary: Dict,
     quality_summary: Dict
 ) -> Dict:
-    """Save comprehensive experiment information."""
+    """Add evaluation info to existing training experiment_info.json."""
     try:
         root_dir = get_root_directory()
+        training_info_path = root_dir / 'experiment_info.json'
         
-        experiment_info = {
-            'run_id': run_id,
-            'model_path': model_path,
-            'model_type': 'lightgbm',
-            'framework': 'lightgbm',
-            'metrics': metrics,
-            'parameters': params,
-            'monitoring': {
-                'drift': drift_summary,
-                'quality': quality_summary
-            },
-            'timestamp': datetime.now().isoformat(),
-            'git_commit': GIT_COMMIT_HASH,
-            'environment': ENVIRONMENT,
-            'dataset_version': 'v1.0',
-        }
-        
-        # Save to root directory
-        info_path = root_dir / 'experiment_info.json'
-        with open(info_path, 'w') as f:
-            json.dump(experiment_info, f, indent=2)
-        
-        logger.info(f"✓ Experiment info saved to {info_path}")
-        
-        return experiment_info
+        if training_info_path.exists():
+            with open(training_info_path, 'r') as f:
+                training_info = json.load(f)
+            
+            # Add evaluation data
+            training_info['evaluation'] = {
+                'evaluation_run_id': run_id,
+                'test_metrics': metrics,
+                'monitoring': {
+                    'drift': drift_summary,
+                    'quality': quality_summary
+                },
+                'timestamp': datetime.now().isoformat()
+            }
+            
+            # Save back
+            with open(training_info_path, 'w') as f:
+                json.dump(training_info, f, indent=2)
+            
+            logger.info(f"✓ Evaluation info added to experiment_info.json")
+            return training_info
+        else:
+            raise FileNotFoundError("Training experiment_info.json not found! Run training first.")
         
     except Exception as e:
-        logger.error(f'Error saving experiment info: {e}')
+        logger.error(f'Error saving evaluation info: {e}')
         raise
 
 # ==================== MAIN EVALUATION FLOW ====================
@@ -547,11 +544,9 @@ def main():
             
             # Save comprehensive experiment info
             model_path = f"runs:/{run_id}/model"
-            experiment_info = save_experiment_info(
+            experiment_info = save_evaluation_info(
                 run_id=run_id,
-                model_path=model_path,
                 metrics=metrics,
-                params=model_params,
                 drift_summary=drift_summary,
                 quality_summary=quality_summary
             )

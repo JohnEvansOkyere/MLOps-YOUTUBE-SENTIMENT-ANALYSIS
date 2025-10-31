@@ -1,5 +1,17 @@
 {
-  "success": false,
-  "error": "Model artifact validation failed",
-  "timestamp": "2025-10-31T03:27:56.315357"
+  "success": true,
+  "model_name": "yt_chrome_plugin_model",
+  "version": "3",
+  "stage": "Staging",
+  "timestamp": "2025-10-31T03:49:45.432058",
+  "metrics": {
+    "precision_macro": 0.8847295861730718,
+    "precision": 0.8933632739045285,
+    "f1_score": 0.883128560958569,
+    "recall_macro": 0.8812176469029298,
+    "f1_score_macro": 0.878453572082603,
+    "accuracy": 0.882982713355382,
+    "recall": 0.882982713355382
+  },
+  "promotion_reason": "No production model exists - auto-promoting first model to staging"
 }
