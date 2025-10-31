@@ -182,3 +182,52 @@ Open GitHub Project - Settings -Actions - Runner -New Self Host - Linux
 
     chrome://extensions
 
+  # Backend Deployment
+
+  build docker image on local machine
+
+  test if it was working
+
+  createed ecr repo on aws
+
+  login to ecr
+
+  aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 699664936905.dkr.ecr.us-east-1.amazonaws.com 
+
+Tag image
+docker tag yt-sentiment-api:latest 699664936905.dkr.ecr.us-east-1.amazonaws.com/youtube-sentiment:latest
+
+push ot ECR
+
+docker push 699664936905.dkr.ecr.us-east-1.amazonaws.com/youtube-sentiment:latest
+
+now, connecting or moving from ECR to EC2
+
+RUN THIS TO MOVE THE SSH KEY TO SECURE PLACE
+# Move to SSH directory
+mv ~/Downloads/youtube-sentiment-current.pem ~/.ssh/
+
+# Secure permissions (must be 400 or SSH fails)
+chmod 400 ~/.ssh/youtube-sentiment-current.pem
+
+# Verify
+ls -la ~/.ssh/youtube-sentiment-current.pem  # Should show -r--------
+
+run this
+ssh -i ~/.ssh/youtube-sentiment-current.pem ubuntu@ec2-184-72-211-47.compute-1.amazonaws.com
+
+install docker on ec2 machine
+sudo apt update && sudo apt install -y 
+docker.io && sudo usermod -aG 
+docker ubuntu && newgrp docker
+
+ON LOCAL MACHINE, transfer .env to ec2
+scp -i ~/.ssh/youtube-sentiment-current.pem .env ubuntu@ec2-184-72-211-47.compute-1.amazonaws.com:~/
+
+Login to ECR on EC2 machine
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 699664936905.dkr.ecr.us-east-1.amazonaws.com
+
+login suceed
+
+pull the image
+docker pull 699664936905.dkr.ecr.us-east-1.amazonaws.com/youtube-sentiment:latest
