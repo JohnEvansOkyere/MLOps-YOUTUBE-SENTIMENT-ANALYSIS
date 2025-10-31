@@ -210,3 +210,45 @@ __marimo__/
 /lgbm_model.pkl
 /tfidf_vectorizer.pkl
 /experiment_info.json
+
+
+# DVC
+/data/raw
+/data/interim
+/lgbm_model.pkl
+/tfidf_vectorizer.pkl
+/reference_data
+
+# Reports (DVC tracks specific ones)
+/reports/confusion_matrices/*
+!/reports/confusion_matrices/confusion_matrix_test_latest.png
+/reports/metrics/*
+!/reports/metrics/metrics_test_latest.json
+/reports/drift/*.html
+/reports/drift/*.json
+/reports/data_quality/*.html
+/reports/performance/*.html
+
+# Logs
+/logs/
+*.log
+
+# Temporary files
+/confusion_matrix*.png
+/experiment_info.json
+/data_stats.json
+```
+
+---
+
+## **📋 Update Your `.dvcignore`**
+
+Create/update `.dvcignore`:
+```
+# Add files you don't want DVC to track
+__pycache__/
+*.pyc
+*.log
+.git/
+.env
+*.egg-info/
