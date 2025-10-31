@@ -446,10 +446,27 @@ def train_with_mlflow(root_dir: Path, params: Dict):
             if params_path.exists():
                 mlflow.log_artifact(str(params_path))
             
-            # Log data statistics as JSON
+           # Log data statistics as JSON
             stats_path = root_dir / 'data_stats.json'
+
+            # Convert numpy/pandas types to native Python types
+            def convert_to_serializable(obj):
+                """Convert numpy/pandas types to JSON serializable types."""
+                if isinstance(obj, dict):
+                    return {k: convert_to_serializable(v) for k, v in obj.items()}
+                elif isinstance(obj, list):
+                    return [convert_to_serializable(item) for item in obj]
+                elif hasattr(obj, 'item'):  # numpy types
+                    return obj.item()
+                elif hasattr(obj, 'tolist'):  # numpy arrays
+                    return obj.tolist()
+                else:
+                    return obj
+
+            serializable_stats = convert_to_serializable(data_stats)
+
             with open(stats_path, 'w') as f:
-                json.dump(data_stats, f, indent=2)
+                json.dump(serializable_stats, f, indent=2)
             mlflow.log_artifact(str(stats_path))
             
             # Save model locally (pickle format for backward compatibility)

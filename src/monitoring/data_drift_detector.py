@@ -24,9 +24,10 @@ logger = logging.getLogger(__name__)
 class DataDriftDetector:
     """Detect data drift between reference and current datasets."""
     
-    def __init__(self, config_path: str = "monitoring/config/monitoring_config.yaml"):
+    def __init__(self, config_path: str = "params.yaml"):
         """Initialize drift detector with configuration."""
         self.config = self._load_config(config_path)
+        # Now access monitoring section
         self.drift_threshold = self.config['monitoring']['data_drift']['threshold']
         
     def _load_config(self, config_path: str) -> Dict:

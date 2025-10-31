@@ -21,13 +21,13 @@ logger = logging.getLogger(__name__)
 class ModelPerformanceMonitor:
     """Monitor model performance and detect degradation."""
     
-    def __init__(self, config_path: str = "monitoring/config/monitoring_config.yaml"):
+    def __init__(self, config_path: str = "params.yaml"):
         """Initialize performance monitor."""
         self.config = self._load_config(config_path)
         self.accuracy_threshold = self.config['monitoring']['performance']['accuracy_threshold']
         self.f1_threshold = self.config['monitoring']['performance']['f1_threshold']
         self.degradation_threshold = self.config['monitoring']['performance']['degradation_threshold']
-        
+    
     def _load_config(self, config_path: str) -> Dict:
         """Load monitoring configuration."""
         with open(config_path, 'r') as f:

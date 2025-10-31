@@ -3,24 +3,6 @@
 # MLflow-Basic-Demo
 
 
-## For Dagshub:
-
-MLFLOW_TRACKING_URI=https://dagshub.com/entbappy/MLflow-Basic-Demo.mlflow \
-MLFLOW_TRACKING_USERNAME=entbappy \
-MLFLOW_TRACKING_PASSWORD=6824692c47a369aa6f9eac5b10041d5c8edbcef0 \
-python script.py
-
-
-
-```bash
-
-export MLFLOW_TRACKING_URI=https://dagshub.com/entbappy/MLflow-Basic-Demo.mlflow
-
-export MLFLOW_TRACKING_USERNAME=entbappy 
-
-export MLFLOW_TRACKING_PASSWORD=6824692c47a369aa6f9eac5b10041d5c8edbcef0
-
-
 ```
 
 
@@ -62,8 +44,7 @@ aws configure
 
 
 #Finally 
-mlflow server -h 0.0.0.0 --default-artifact-root s3://
-youtube-sentiment00223  - replac mlflow-test-23 with your s3 bucket created
+mlflow server --host 0.0.0.0 --default-artifact-root s3://youtube-sentiment00223 --allowed-hosts "*"    -   replac mlflow-test-23 with your s3 bucket created
 
 # Setting the Port number
 Go to ec2, click on instance, click on security, selecet secuirty groups - Edit inbound rules - add rule - add your port number
@@ -128,6 +109,27 @@ AWS CICD Deployment with Github Actions
 1. AmazonEC2ContainerREgistryFullAccess
 
 2. AmazonEC2FullAccess
+
+3. AmazonS3FullAccess 
+OR 
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::youtube-sentiment00223",
+        "arn:aws:s3:::youtube-sentiment00223/*"
+      ]
+    }
+  ]
+}
 
 ## 3. Create ECR repo to store/save docker image
 
