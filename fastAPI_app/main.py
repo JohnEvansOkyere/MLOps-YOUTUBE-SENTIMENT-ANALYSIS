@@ -4,7 +4,8 @@ Production FastAPI - Using existing preprocessing and model loading.
 """
 
 import matplotlib
-matplotlib.use('Agg')
+
+matplotlib.use("Agg")
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,10 +38,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI
-app = FastAPI(
-    title="YouTube Sentiment Analysis API",
-    version="2.0.0"
-)
+app = FastAPI(title="YouTube Sentiment Analysis API", version="2.0.0")
 
 # CORS
 app.add_middleware(
@@ -57,48 +55,44 @@ vectorizer = None
 model_metadata = {}
 
 # Settings from .env
-MLFLOW_TRACKING_URI = os.getenv('MLFLOW_TRACKING_URI')
-MODEL_NAME = os.getenv('MODEL_REGISTRY_NAME', 'yt_chrome_plugin_model')
-MODEL_ALIAS = os.getenv('MODEL_ALIAS', 'champion')
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI")
+MODEL_NAME = os.getenv("MODEL_REGISTRY_NAME", "yt_chrome_plugin_model")
+MODEL_ALIAS = os.getenv("MODEL_ALIAS", "champion")
 
 
 # ==================== MODEL LOADING ====================
+
 
 def load_model_from_mlflow(model_name: str, alias: str = "champion"):
     """Load model from MLflow registry."""
     try:
         mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
         client = MlflowClient()
-        
+
         # Load by alias
         model_version = client.get_model_version_by_alias(model_name, alias)
         version = model_version.version
         run_id = model_version.run_id
-        
+
         logger.info(f"Loading model v{version} (alias: {alias})...")
-        
+
         # Load model
         model_uri = f"models:/{model_name}/{version}"
         loaded_model = mlflow.sklearn.load_model(model_uri)
-        
+
         # Load vectorizer from artifacts
         vectorizer_path = mlflow.artifacts.download_artifacts(
-            run_id=run_id,
-            artifact_path="vectorizer/tfidf_vectorizer.pkl"
+            run_id=run_id, artifact_path="vectorizer/tfidf_vectorizer.pkl"
         )
-        
-        with open(vectorizer_path, 'rb') as f:
+
+        with open(vectorizer_path, "rb") as f:
             loaded_vectorizer = pickle.load(f)
-        
-        metadata = {
-            'version': version,
-            'run_id': run_id,
-            'alias': alias
-        }
-        
+
+        metadata = {"version": version, "run_id": run_id, "alias": alias}
+
         logger.info(f"✓ Model v{version} loaded from MLflow")
         return loaded_model, loaded_vectorizer, metadata
-        
+
     except Exception as e:
         logger.error(f"Failed to load from MLflow: {e}")
         raise
@@ -108,21 +102,21 @@ def load_model_from_local():
     """Fallback: Load from local pickle files."""
     try:
         logger.warning("Loading from local files (fallback)")
-        
+
         model_path = project_root / "lgbm_model.pkl"
         vectorizer_path = project_root / "tfidf_vectorizer.pkl"
-        
-        with open(model_path, 'rb') as f:
+
+        with open(model_path, "rb") as f:
             loaded_model = pickle.load(f)
-        
-        with open(vectorizer_path, 'rb') as f:
+
+        with open(vectorizer_path, "rb") as f:
             loaded_vectorizer = pickle.load(f)
-        
-        metadata = {'source': 'local_fallback'}
-        
+
+        metadata = {"source": "local_fallback"}
+
         logger.info("✓ Model loaded from local files")
         return loaded_model, loaded_vectorizer, metadata
-        
+
     except Exception as e:
         logger.error(f"Failed to load from local: {e}")
         raise
@@ -130,13 +124,14 @@ def load_model_from_local():
 
 # ==================== STARTUP ====================
 
+
 @app.on_event("startup")
 async def startup_event():
     """Load model on startup."""
     global model, vectorizer, model_metadata
-    
+
     logger.info("Starting application...")
-    
+
     try:
         # Try MLflow first
         if MLFLOW_TRACKING_URI:
@@ -149,9 +144,9 @@ async def startup_event():
                 model, vectorizer, model_metadata = load_model_from_local()
         else:
             model, vectorizer, model_metadata = load_model_from_local()
-        
+
         logger.info("✅ Application ready")
-        
+
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
         logger.error("Application will start but predictions will fail!")
@@ -159,15 +154,19 @@ async def startup_event():
 
 # ==================== PYDANTIC MODELS ====================
 
+
 class CommentItem(BaseModel):
     text: str
     timestamp: str
 
+
 class PredictRequest(BaseModel):
     comments: List[str]
 
+
 class PredictWithTimestampsRequest(BaseModel):
     comments: List[CommentItem]
+
 
 class PredictResponse(BaseModel):
     comment: str
@@ -176,6 +175,7 @@ class PredictResponse(BaseModel):
 
 
 # ==================== ENDPOINTS ====================
+
 
 @app.get("/")
 async def home():
@@ -189,7 +189,7 @@ async def health_check():
     return {
         "status": "healthy" if model else "unhealthy",
         "model_loaded": model is not None,
-        "model_version": model_metadata.get('version', 'unknown')
+        "model_version": model_metadata.get("version", "unknown"),
     }
 
 
@@ -209,41 +209,37 @@ async def predict(request: PredictRequest):
     """
     if model is None or vectorizer is None:
         raise HTTPException(status_code=503, detail="Model not loaded")
-    
+
     comments = request.comments
-    
+
     if not comments:
         raise HTTPException(status_code=400, detail="No comments provided")
-    
+
     try:
         # ✅ Use YOUR preprocessing function
         preprocessed = [preprocess_comment(c) for c in comments]
-        
+
         # Vectorize
         transformed = vectorizer.transform(preprocessed)
-        
+
         # Predict
         predictions = model.predict(transformed).tolist()
-        
+
         # Confidence (optional)
         try:
             proba = model.predict_proba(transformed)
             confidences = [float(max(p)) for p in proba]
         except:
             confidences = [None] * len(predictions)
-        
+
         # Response
         response = [
-            {
-                "comment": comment,
-                "sentiment": str(pred),
-                "confidence": conf
-            }
+            {"comment": comment, "sentiment": str(pred), "confidence": conf}
             for comment, pred, conf in zip(comments, predictions, confidences)
         ]
-        
+
         return response
-        
+
     except Exception as e:
         logger.error(f"Prediction failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -254,45 +250,45 @@ async def predict_with_timestamps(request: PredictWithTimestampsRequest):
     """Predict with timestamps."""
     if model is None or vectorizer is None:
         raise HTTPException(status_code=503, detail="Model not loaded")
-    
+
     comments_data = request.comments
-    
+
     if not comments_data:
         raise HTTPException(status_code=400, detail="No comments provided")
-    
+
     try:
         comments = [item.text for item in comments_data]
         timestamps = [item.timestamp for item in comments_data]
-        
+
         # ✅ Use YOUR preprocessing
         preprocessed = [preprocess_comment(c) for c in comments]
-        
+
         # Vectorize & predict
         transformed = vectorizer.transform(preprocessed)
         predictions = model.predict(transformed).tolist()
-        
+
         # Confidence
         try:
             proba = model.predict_proba(transformed)
             confidences = [float(max(p)) for p in proba]
         except:
             confidences = [None] * len(predictions)
-        
+
         # Response
         response = [
             {
                 "comment": comment,
                 "sentiment": str(pred),
                 "timestamp": timestamp,
-                "confidence": conf
+                "confidence": conf,
             }
             for comment, pred, timestamp, conf in zip(
                 comments, predictions, timestamps, confidences
             )
         ]
-        
+
         return response
-        
+
     except Exception as e:
         logger.error(f"Prediction failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -302,6 +298,7 @@ async def predict_with_timestamps(request: PredictWithTimestampsRequest):
 # Copy generate_chart, generate_wordcloud, generate_trend_graph from your original code
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("fastAPI_app.main:app", host="0.0.0.0", port=8000, reload=True)
