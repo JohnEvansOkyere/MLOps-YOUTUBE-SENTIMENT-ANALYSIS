@@ -168,16 +168,18 @@ Open GitHub Project - Settings -Actions - Runner -New Self Host - Linux
 
 ## 7. Setup github secrets
     from the EC2 secrets we downloaded in CSV
+# Go to: GitHub repo → Settings → Secrets and variables → Actions
 
-    AWS_ACCESS_KEY_ID = 
-
-    AWS_SECRET_ACCESS_KEY = 
-
-    AWS_REGION = eu-north-1
-
-    AWS_ECR_LOGIN_URI = demo >> 699664936905.dkr.ecr.eu-north-1.amazonaws.com/youtube-sentiment
-
-    ECR_REPOSITORY_NAME =youtube-sentiment
+# Add these secrets (NEVER in code):
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_REGION
+ECR_REPOSITORY_NAME
+AWS_ECR_LOGIN_URI
+MLFLOW_TRACKING_URI
+MODEL_REGISTRY_NAME
+MODEL_ALIAS
+YOUTUBE_API_KEY
 
 
     chrome://extensions
