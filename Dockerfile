@@ -16,11 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
-RUN useradd -m -u 1000 appuser && \
-    mkdir -p /app/logs /app/reports /app/logs/inference && \
-    chown -R appuser:appuser /app && \
-    chmod -R 755 /app/logs /app/reports# Create non-root user
+# Create non-root user, logs/reports dirs, and set permissions
 RUN useradd -m -u 1000 appuser && \
     mkdir -p /app/logs /app/reports /app/logs/inference && \
     chown -R appuser:appuser /app && \
@@ -33,11 +29,14 @@ COPY --chown=appuser:appuser requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Download NLTK data
-RUN python -c "import nltk; nltk.download('stopwords'); nltk.download('wordnet')"
+# Download NLTK data (expanded for sentiment: punkt for tokenization, vader for lexicon)
+RUN python -c "import nltk; nltk.download('punkt', quiet=True); nltk.download('stopwords', quiet=True); nltk.download('wordnet', quiet=True); nltk.download('vader_lexicon', quiet=True)"
 
 # Copy application code
 COPY --chown=appuser:appuser . .
+
+# Copy local model fallback (optional; if using MLflow, skip or comment)
+# COPY --chown=appuser:appuser lgbm_model.pkl /app/lgbm_model.pkl
 
 # Switch to non-root user
 USER appuser
