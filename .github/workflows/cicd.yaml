@@ -133,7 +133,7 @@ jobs:
   # ==================== DEPLOY TO EC2 ====================
   deploy:
     name: Deploy to Production
-    runs-on: self-hosted  # Your EC2 instance
+    runs-on: self-hosted
     needs: build-and-push
     steps:
       - name: Checkout Code
@@ -181,19 +181,19 @@ jobs:
             --restart unless-stopped \
             -e MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }} \
             -e MODEL_REGISTRY_NAME=${{ secrets.MODEL_REGISTRY_NAME }} \
-            -e MODEL_ALIAS=${{ secrets.MODEL_ALIAS }} \
+            -e MODEL_STAGE=${{ secrets.MODEL_STAGE }} \
             -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             -e AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }} \
             -e YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }} \
             -e ENABLE_MONITORING=true \
             -v /var/log/yt-sentiment:/app/logs \
-            $ECR_REGISTRY/$ECR_REPOSITORY:latest
+            $ECR_REGISTRY/$ECR_REPOSITORY:working
 
       - name: Wait for Container to Start
         run: |
           echo "Waiting for container to be healthy..."
-          sleep 10
+          sleep 15
 
       - name: Health Check
         run: |
@@ -212,7 +212,7 @@ jobs:
           done
           
           echo "❌ Health check failed after $max_attempts attempts"
-          docker logs yt-sentiment-api
+          docker logs --tail 50 yt-sentiment-api
           exit 1
 
       - name: Test Prediction Endpoint
@@ -243,7 +243,7 @@ jobs:
           echo "DEPLOYMENT SUCCESSFUL"
           echo "================================"
           echo "Container: yt-sentiment-api"
-          echo "Image: ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest"
+          echo "Image: ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:working"
           echo "Port: 8080"
           echo "Health: http://localhost:8080/health"
           echo "Docs: http://localhost:8080/docs"
@@ -260,18 +260,21 @@ jobs:
         run: |
           echo "⚠️ Deployment failed, attempting rollback..."
           
-          # Get previous image (if exists)
-          previous_image=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep $ECR_REPOSITORY | sed -n '2p')
+          # Use the working image for rollback
+          docker stop yt-sentiment-api 2>/dev/null || true
+          docker rm yt-sentiment-api 2>/dev/null || true
           
-          if [ -n "$previous_image" ]; then
-            echo "Rolling back to: $previous_image"
-            docker stop yt-sentiment-api || true
-            docker rm yt-sentiment-api || true
-            docker run -d -p 8080:8080 --name yt-sentiment-api $previous_image
-            echo "✓ Rollback complete"
-          else
-            echo "❌ No previous image found for rollback"
-          fi
+          echo "Rolling back to working image..."
+          docker pull ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:working
+          
+          docker run -d \
+            -p 8080:8080 \
+            --name yt-sentiment-api \
+            --restart unless-stopped \
+            --env-file /home/ubuntu/.env \
+            ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:working
+          
+          echo "✓ Rollback complete"
 
       - name: Notify Failure
         run: |

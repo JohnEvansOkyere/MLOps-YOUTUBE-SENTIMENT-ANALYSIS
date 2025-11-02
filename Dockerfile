@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN useradd -m -u 1000 appuser && \
     mkdir -p /app/logs /app/reports /app/logs/inference && \
     chown -R appuser:appuser /app && \
-    chmod -R 755 /app/logs /app/reports
+    chmod -R 777 /app/logs /app/reports
 
 # Copy requirements first (for caching)
 COPY --chown=appuser:appuser requirements.txt .
