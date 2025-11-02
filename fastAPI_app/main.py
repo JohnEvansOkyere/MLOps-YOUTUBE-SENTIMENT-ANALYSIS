@@ -28,9 +28,6 @@ sys.path.append(str(project_root))
 # ✅ Import from YOUR existing preprocessing
 from src.data.data_preprocessing import preprocess_comment
 
-# ✅ Import from YOUR existing model building (if you have utility functions)
-# from src.model.model_building import load_model  # If you have this
-
 load_dotenv()
 
 # Configure logging
@@ -57,14 +54,15 @@ model_metadata = {}
 # Settings from .env
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI")
 MODEL_NAME = os.getenv("MODEL_REGISTRY_NAME", "yt_chrome_plugin_model")
-MODEL_ALIAS = os.getenv("MODEL_ALIAS", "champion")
+MODEL_ALIAS = os.getenv("MODEL_ALIAS")  # Optional
+MODEL_STAGE = os.getenv("MODEL_STAGE", "Production")  # Default to Production
 
 
 # ==================== MODEL LOADING ====================
 
 
 def load_model_from_mlflow(model_name: str, alias: str = "champion"):
-    """Load model from MLflow registry."""
+    """Load model from MLflow registry by alias."""
     try:
         mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
         client = MlflowClient()
@@ -94,7 +92,47 @@ def load_model_from_mlflow(model_name: str, alias: str = "champion"):
         return loaded_model, loaded_vectorizer, metadata
 
     except Exception as e:
-        logger.error(f"Failed to load from MLflow: {e}")
+        logger.error(f"Failed to load from MLflow by alias: {e}")
+        raise
+
+
+def load_model_from_mlflow_by_stage(model_name: str, stage: str = "Production"):
+    """Load model from MLflow registry by stage."""
+    try:
+        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+        client = MlflowClient()
+
+        # Get latest version in stage
+        versions = client.get_latest_versions(model_name, stages=[stage])
+        
+        if not versions:
+            raise Exception(f"No model found in stage: {stage}")
+        
+        model_version = versions[0]
+        version = model_version.version
+        run_id = model_version.run_id
+
+        logger.info(f"Loading model v{version} (stage: {stage})...")
+
+        # Load model
+        model_uri = f"models:/{model_name}/{version}"
+        loaded_model = mlflow.sklearn.load_model(model_uri)
+
+        # Load vectorizer from artifacts
+        vectorizer_path = mlflow.artifacts.download_artifacts(
+            run_id=run_id, artifact_path="vectorizer/tfidf_vectorizer.pkl"
+        )
+
+        with open(vectorizer_path, "rb") as f:
+            loaded_vectorizer = pickle.load(f)
+
+        metadata = {"version": version, "run_id": run_id, "stage": stage}
+
+        logger.info(f"✓ Model v{version} loaded from MLflow (stage: {stage})")
+        return loaded_model, loaded_vectorizer, metadata
+
+    except Exception as e:
+        logger.error(f"Failed to load from MLflow by stage: {e}")
         raise
 
 
@@ -136,16 +174,27 @@ async def startup_event():
         # Try MLflow first
         if MLFLOW_TRACKING_URI:
             try:
-                model, vectorizer, model_metadata = load_model_from_mlflow(
-                    MODEL_NAME, MODEL_ALIAS
-                )
+                if MODEL_ALIAS:
+                    # Try alias first if provided
+                    logger.info(f"Attempting to load model by alias: {MODEL_ALIAS}")
+                    model, vectorizer, model_metadata = load_model_from_mlflow(
+                        MODEL_NAME, MODEL_ALIAS
+                    )
+                else:
+                    # Use stage if no alias
+                    logger.info(f"Attempting to load model by stage: {MODEL_STAGE}")
+                    model, vectorizer, model_metadata = load_model_from_mlflow_by_stage(
+                        MODEL_NAME, MODEL_STAGE
+                    )
             except Exception as e:
                 logger.warning(f"MLflow load failed: {e}. Trying local...")
                 model, vectorizer, model_metadata = load_model_from_local()
         else:
+            logger.info("No MLflow URI provided, loading from local files")
             model, vectorizer, model_metadata = load_model_from_local()
 
-        logger.info("✅ Application ready")
+        logger.info("✅ Model loaded successfully!")
+        logger.info(f"Model metadata: {model_metadata}")
 
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
@@ -292,10 +341,6 @@ async def predict_with_timestamps(request: PredictWithTimestampsRequest):
     except Exception as e:
         logger.error(f"Prediction failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# ✅ Keep your existing visualization endpoints (they're fine)
-# Copy generate_chart, generate_wordcloud, generate_trend_graph from your original code
 
 
 if __name__ == "__main__":
