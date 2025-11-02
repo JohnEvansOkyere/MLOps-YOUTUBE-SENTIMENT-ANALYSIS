@@ -157,13 +157,18 @@ jobs:
           echo "Pulling latest image..."
           docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-      - name: Stop Old Container (if running)
+      - name: Stop and remove old container
         run: |
           echo "Stopping old container..."
-          docker ps -q --filter "name=yt-sentiment-api" | grep -q . && \
-            docker stop yt-sentiment-api && \
-            docker rm -f yt-sentiment-api || \
-            echo "No existing container to stop"
+          docker stop yt-sentiment-api 2>/dev/null || true
+          docker rm yt-sentiment-api 2>/dev/null || true
+          echo "✓ Old container cleaned"
+
+      - name: Free up disk space
+        run: |
+          echo "Cleaning old images..."
+          docker image prune -af --filter "until=24h"
+          df -h
 
       - name: Run New Container
         env:
