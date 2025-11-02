@@ -159,22 +159,3 @@ jobs:
           echo "✓ Logs captured for debugging"
           echo ""
           echo "Manual intervention required on EC2"
-```
-
----
-
-## **What This Shows on GitHub/LinkedIn:**
-
-✅ **4 Jobs:** Code Quality → Validation → Build → Deploy  
-✅ **All Green Checkmarks** ✓✓✓✓  
-✅ **Professional Pipeline Structure**  
-✅ **Rollback on Failure** (if deploy fails)
-
----
-
-## **Screenshot Will Look Like:**
-```
-✓ Code Quality Checks
-✓ Validate DVC Pipeline  
-✓ Build & Push Docker Image
-✓ Deploy to Production
