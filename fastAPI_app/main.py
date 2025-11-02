@@ -104,10 +104,10 @@ def load_model_from_mlflow_by_stage(model_name: str, stage: str = "Production"):
 
         # Get latest version in stage
         versions = client.get_latest_versions(model_name, stages=[stage])
-        
+
         if not versions:
             raise Exception(f"No model found in stage: {stage}")
-        
+
         model_version = versions[0]
         version = model_version.version
         run_id = model_version.run_id
