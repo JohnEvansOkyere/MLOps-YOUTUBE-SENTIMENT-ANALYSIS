@@ -56,6 +56,7 @@ jobs:
     name: Deploy to Production
     runs-on: self-hosted
     needs: code-quality
+    if:false
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
