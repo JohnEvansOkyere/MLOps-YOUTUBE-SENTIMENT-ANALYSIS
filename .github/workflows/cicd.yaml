@@ -150,12 +150,12 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Pull Latest Docker Image
+      - name: Pull Working Docker Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          echo "Pulling latest image..."
-          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "Pulling working image..."
+          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:working
 
       - name: Stop and remove old container
         run: |
