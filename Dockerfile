@@ -18,8 +18,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && \
-    mkdir -p /app/logs /app/reports && \
-    chown -R appuser:appuser /app
+    mkdir -p /app/logs /app/reports /app/logs/inference && \
+    chown -R appuser:appuser /app && \
+    chmod -R 755 /app/logs /app/reports# Create non-root user
+RUN useradd -m -u 1000 appuser && \
+    mkdir -p /app/logs /app/reports /app/logs/inference && \
+    chown -R appuser:appuser /app && \
+    chmod -R 755 /app/logs /app/reports
 
 # Copy requirements first (for caching)
 COPY --chown=appuser:appuser requirements.txt .
